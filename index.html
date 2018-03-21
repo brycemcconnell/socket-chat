@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; padding-bottom: 53px; padding-top: 50px;}
+      form.message { background: #000; padding: 10px; position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; }
+      form.message input { border: 0; padding: 8px; width: 90%; margin-right: 4px; }
+      form.message button { width: 9%; background-color: cornflowerblue; border: none; border-radius: 2px; color: #fff; padding: 8px 16px;}
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; display: flex;}
+      .admin { font-weight: bold; }
+      .header { display: flex; background-color: cornflowerblue; padding: 8px 16px; margin-top: -50px; position: fixed; width: 100%;}
+      .user { color: #000; }
+      .msg { color: #777; margin-left: 16px; }
+      .time { margin-left: auto; }
+      .nick-holder { margin-right: auto; align-self: center; font-weight: bold; color: #fff;}
+      .set-nick button { margin-left: 16px; }
+      .user-msg { background-color: aliceblue; }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      let msgCount = 0;
+      $(function () { // iife
+        const socket = io();
+        $('form.message').submit(function() { // fkn jquery
+          socket.emit('chat message', {id: msgCount, content: $('#m').val()});
+          
+          $('#messages')
+            .append($('<li class="user-msg">')
+              .append(
+                $('<span class="user">').text($('#displayNick').text()),
+                $('<span class="msg">').text($('#m').val()),
+                $(`<span id="msg${msgCount}" class="time">`).text('sending')
+          ));
+          window.scrollTo(0,document.body.scrollHeight);
+          msgCount++;
+          $('#m').val(''); // fkn jquery
+          return false;
+        });
+        $('form.set-nick').submit(function() { // fkn jquery
+          $('#displayNick').text($('#nick').val());
+          socket.emit('name change', $('#nick').val());
+          $('#nick').val(''); // fkn jquery
+          return false;
+        });
+        socket.on('chat message', function(msg){
+          $('#messages')
+            .append($('<li>')
+              .append(
+                $('<span class="user">').text(msg.user),
+                $('<span class="msg">').text(msg.content),
+                $('<span class="time">').text(msg.time)
+          ));
+        });
+        socket.on('admin message', function(msg){
+          $('#messages').append($('<li class="admin">').text(msg));
+        });
+        socket.on('name change', function(msg){
+          $('#messages').append($('<li class="admin">').text(msg));
+        });
+
+        socket.on('set name', function(name){
+          $('#displayNick').text(name);
+        });
+        socket.on('sent time', function(time){
+          $(`#msg${time.id}`).text(time.content);
+          console.log(time)
+        });
+        socket.on('currently online', function(count) {
+          $('#currentlyOnline').text(count);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="header">
+      <div class="nick-holder">
+        <span>Nick: </span>
+        <span id="displayNick">default</span>
+        <span> ☀ Online: </span>
+        <span id="currentlyOnline">1</span>
+      </div>
+      <form class="set-nick" action="">
+        <input id="nick" autocomplete="off" /><button>Set Nickname</button>
+      </form>
+    </div>
+    <ul id="messages"></ul>
+    <form class="message" action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+  </body>
+</html>
