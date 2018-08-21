@@ -1,0 +1,193 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font: 13px Helvetica, Arial;
+    padding-bottom: 53px;
+}
+
+form.message {
+    background: #000;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+form.message input {
+    border: 0;
+    padding: 8px;
+    width: 90%;
+    margin-right: 4px;
+}
+
+form.message button {
+    width: 9%;
+    background-color: cornflowerblue;
+    border: none;
+    border-radius: 2px;
+    color: #fff;
+    padding: 8px 16px;
+}
+
+.main {
+    margin-top: 100px;
+    padding-top: 5px;
+}
+
+.burger-wrapper {
+    position: relative;
+    background-color: dodgerblue;
+    height: 100%;
+    width: 100%;
+}
+
+.burger-patty {
+    width: 34px;
+    height: 5px;
+    background-color: #fff;
+    transition: .3s;
+    left: 8px;
+    position: absolute;
+}
+
+.burger-patty:first-child {
+	top: 10px;
+}
+
+.burger-patty:nth-child(2) {
+	top: 22px;
+}
+
+.burger-patty:last-child {
+	top: 34px;
+}
+
+.burger-wrapper_active .burger-patty:first-child {
+	opacity: 1;
+	top: 22px;
+	transform: rotateZ(-45deg);
+}
+.burger-wrapper_active .burger-patty:nth-child(2) {
+	opacity: 0;
+}
+
+.burger-wrapper_active .burger-patty:last-child {
+	opacity: 1;
+	top: 22px;
+	transform: rotateZ(45deg);
+}
+
+#messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#messages li {
+    padding: 5px 10px;
+    display: flex;
+}
+
+.admin {
+    font-weight: bold;
+}
+
+.header {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: cornflowerblue;
+    padding: 8px 16px;
+    height: 50px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 99;
+}
+
+.user {
+    color: #000;
+}
+
+.msg {
+    color: #777;
+    margin-left: 16px;
+}
+
+.time {
+    margin-left: auto;
+}
+
+.nick-holder {
+    font-weight: bold;
+    color: #fff;
+    position: absolute;
+    left: 20px;
+}
+
+.header-settings_btn {
+    position: absolute;
+    right: 0;
+    height: 50px;
+    width: 50px;
+    border: none;
+}
+
+.set-nick button {
+    margin-left: 16px;
+}
+
+.user-msg {
+    background-color: aliceblue;
+}
+
+.display-room {
+    color: #fff;
+}
+
+.settings {
+    display: block;
+    position: absolute;
+    top: 100px;
+    padding: 20px;
+    right: 0;
+    background-color: #fff;
+    border: 2px solid cornflowerblue;
+    height: 700px;
+    width: 400px;
+}
+
+.chat_bar {
+	position: absolute;
+	top: 50px;
+	width: 100%;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	border-bottom: 4px solid cornflowerblue;
+	z-index: 99;
+	background-color: #fff;
+	padding: 0 20px;
+}
+
+.chat_bar-item {
+	border-top: 1px solid cornflowerblue;
+	border-right: 1px solid cornflowerblue;
+	border-left: 1px solid cornflowerblue;
+	margin-top: 10px;
+	height: 40px;
+	padding: 14px;
+	width: 160px;
+}
+
+.chat_bar-item--active {
+	background-color: cornflowerblue;
+	color: #fff;
+	font-weight: bold;
+}

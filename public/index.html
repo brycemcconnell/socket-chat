@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <link href="./assets/css/styles.css" rel="stylesheet" type="text/css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      let msgCount = 0;
+      let currentRoom = 'lobby';
+      $(function () { // iife
+        const socket = io();
+        $('form.message').submit(function() { // fkn jquery
+          socket.emit('chat message', {id: msgCount, content: $('#m').val(), room: currentRoom});
+          
+          $('#messages')
+            .append($('<li class="user-msg">')
+              .append(
+                $('<span class="user">').text($('#displayNick').text()),
+                $('<span class="msg">').text($('#m').val()),
+                $(`<span id="msg${msgCount}" class="time">`).text('sending')
+          ));
+          window.scrollTo(0,document.body.scrollHeight);
+          msgCount++;
+          $('#m').val(''); // fkn jquery
+          return false;
+        });
+        $('form.set-nick').submit(function() { // fkn jquery
+          $('#displayNick').text($('#nick').val());
+          socket.emit('name change', $('#nick').val());
+          $('#nick').val(''); // fkn jquery
+          return false;
+        });
+        $('form.join-room').submit(function() { // fkn jquery
+          // $('#displayRoom').text($('#room').val());
+          socket.emit('join room', $('#room').val());
+          const roomTab = createRoomTab($('#room').val());
+          document.getElementById('chat_bar').appendChild(roomTab);
+          setRoom(roomTab);
+          $('#room').val(''); // fkn jquery
+          return false;
+        });
+        socket.on('chat message', function(msg){
+          $('#messages')
+            .append($('<li>')
+              .append(
+                $('<span class="user">').text(msg.user),
+                $('<span class="msg">').text(msg.content),
+                $('<span class="time">').text(msg.time)
+          ));
+        });
+        socket.on('admin message', function(msg){
+          $('#messages').append($('<li class="admin">').text(msg));
+        });
+        socket.on('name change', function(msg){
+          $('#messages').append($('<li class="admin">').text(msg));
+        });
+
+        socket.on('set name', function(name){
+          $('#displayNick').text(name);
+        });
+        socket.on('sent time', function(time){
+          $(`#msg${time.id}`).text(time.content);
+          console.log(time)
+        });
+        socket.on('currently online', function(count) {
+          $('#currentlyOnline').text(count);
+        });
+        socket.on('connect', function() {
+          const roomTab = createRoomTab('lobby');
+          document.getElementById('chat_bar').appendChild(roomTab);
+          setRoom(roomTab);
+        })
+      });
+    </script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="nick-holder">
+        <span>Nick: </span>
+        <span id="displayNick">default</span>
+        <span> ☀ Online: </span>
+        <span id="currentlyOnline">1</span>
+      </div>
+      <button class="header-settings_btn" onclick="handleBurger(this);">
+        <div class="burger-wrapper" >
+          <div class="burger-patty"></div>
+          <div class="burger-patty"></div>
+          <div class="burger-patty"></div>
+        </div>
+      </button>
+    </header>
+    <div id="chat_bar" class="chat_bar">
+   <!--    <div class="chat_bar-item chat_bar-item--active" onclick="setRoom(this);" data-room-name="lobby">
+        <span>lobby</span> <span>(0)</span>
+      </div>
+      <div class="chat_bar-item" onclick="setRoom(this);" data-room-name="test">
+        <span>test</span> <span>(3)</span>
+      </div> -->
+    </div>
+    <aside class="settings" style="visibility: hidden;">
+      <form class="set-nick" action="">
+        <input id="nick" autocomplete="off" /><button>Set Nickname</button>
+      </form>
+      <form class="join-room" action="">
+        <input id="room" autocomplete="off" /><button>Join Room</button>
+      </form>
+    </aside>
+    <main class="main">
+      <ul id="messages"></ul>
+    </main>
+    <form class="message" action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    <script>
+      window.onload = function() {
+        const settings = document.querySelector('.settings');
+        settings.style.top = -settings.clientHeight + 'px';
+        settings.style.visibility = 'visible';
+      }
+      function handleBurger(el) {
+        console.log(el)
+        el.classList.toggle('burger-wrapper_active');
+        
+        if ($('.settings').hasClass('settings-active')) {
+          $('.settings').animate({top: -document.querySelector('.settings').clientHeight + "px"});
+        } else {
+          $('.settings').animate({top: '100px'});  
+        }
+        $('.settings').toggleClass('settings-active');
+      }
+
+      function setRoom(el) {
+        const rooms = document.querySelectorAll('.chat_bar-item');
+        for (var i = 0; i < rooms.length; i++) {
+          rooms[i].classList.remove('chat_bar-item--active');
+        }
+        el.classList.add('chat_bar-item--active');
+        currentRoom = el.getAttribute('data-room-name');
+        console.log(currentRoom)
+      }
+
+      function createRoomTab(roomName) {
+        const roomtab = document.createElement('div');
+        roomtab.className = 'chat_bar-item';
+        roomtab.onclick = () => setRoom(roomtab);
+        roomtab.setAttribute('data-room-name', roomName);
+        const elRoomName = document.createElement('span');
+        elRoomName.innerHTML = roomName;
+        const elRoomMessageCount = document.createElement('span');
+        elRoomMessageCount.innerHTML = '(0)';
+        roomtab.appendChild(elRoomName); 
+        roomtab.appendChild(elRoomMessageCount); 
+        return roomtab;
+      }
+    </script>
+  </body>
+</html>
